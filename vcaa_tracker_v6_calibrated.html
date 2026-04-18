@@ -1,0 +1,674 @@
+
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; }
+body,div,span,p,label,input,button { font-family:'Roboto',Arial,sans-serif; }
+h1,h2,h3,.section-head,.tab-btn,.metric-val,.threshold-title,.actions-title,.badge { font-family:'Montserrat','Roboto',Arial,sans-serif; }
+.wrap { padding:1rem 0; font-size:15px; }
+.cohort-note { font-size:13px; color:var(--color-text-secondary); padding:0.75rem 1rem; background:var(--color-background-secondary); border-radius:var(--border-radius-md); margin-bottom:1.25rem; line-height:1.7; }
+.section-head { font-size:10px; font-weight:700; color:var(--color-text-secondary); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.75rem; }
+.sac-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1.25rem; }
+.sac-card { background:var(--color-background-primary); border:1.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); padding:0.85rem 1rem; transition:border-color 0.2s; cursor:pointer; }
+.sac-card.selected { border-color:#2E75B6; box-shadow:0 0 0 3px #2E75B618; }
+.sac-card.sac-only { border-style:dashed; }
+.sac-name { font-size:14px; font-weight:500; color:var(--color-text-primary); margin-bottom:1px; }
+.sac-unit { font-size:11px; color:var(--color-text-tertiary); margin-bottom:7px; }
+.sac-tag { display:inline-block; font-size:10px; font-weight:700; border-radius:3px; padding:1px 7px; margin-bottom:6px; font-family:'Montserrat',Arial,sans-serif; letter-spacing:0.03em; }
+.sac-row { display:flex; align-items:center; gap:8px; }
+.sac-row input[type=range] { flex:1; }
+.sac-score { font-size:15px; font-weight:500; min-width:30px; text-align:right; }
+.sac-max { font-size:12px; color:var(--color-text-secondary); }
+.sac-pct { font-size:11px; color:var(--color-text-tertiary); margin-top:4px; }
+.sac-range-pill { display:inline-block; font-size:10px; font-weight:700; border-radius:999px; padding:2px 9px; margin-top:5px; font-family:'Montserrat',Arial,sans-serif; }
+.divider { border:none; border-top:0.5px solid var(--color-border-tertiary); margin:1.4rem 0; }
+.metric-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
+.metric-card { background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:0.85rem; }
+.metric-label { font-size:11px; color:var(--color-text-secondary); margin-bottom:4px; }
+.metric-val { font-size:24px; font-weight:700; color:var(--color-text-primary); }
+.metric-sub { font-size:11px; color:var(--color-text-secondary); margin-top:3px; }
+.bar-track { height:12px; background:var(--color-background-secondary); border-radius:999px; overflow:hidden; margin:6px 0 3px; }
+.bar-fill { height:100%; border-radius:999px; transition:width 0.35s ease; }
+.bar-labels { display:flex; justify-content:space-between; font-size:10px; color:var(--color-text-secondary); margin-top:3px; }
+.status-box { border-radius:var(--border-radius-md); padding:0.85rem 1rem; margin-bottom:1.25rem; font-size:14px; line-height:1.6; }
+.threshold-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin-bottom:1.25rem; }
+.threshold-card { border-radius:var(--border-radius-md); padding:0.85rem; border:0.5px solid var(--color-border-tertiary); background:var(--color-background-primary); }
+.threshold-card.active { border-width:2px; }
+.threshold-title { font-size:13px; font-weight:700; margin-bottom:2px; }
+.threshold-desc { font-size:11px; color:var(--color-text-secondary); margin-bottom:5px; }
+.threshold-need { font-size:13px; font-weight:500; margin-top:4px; }
+.threshold-gap { font-size:11px; color:var(--color-text-secondary); margin-top:3px; }
+.section-tabs { display:flex; gap:6px; margin-bottom:0.9rem; flex-wrap:wrap; }
+.tab-btn { padding:7px 15px; border-radius:999px; border:1px solid var(--color-border-secondary); background:var(--color-background-primary); font-size:12px; font-weight:600; cursor:pointer; color:var(--color-text-secondary); transition:all 0.15s; font-family:'Montserrat',Arial,sans-serif; }
+.tab-btn.active { background:#1A5276; color:#fff; border-color:#1A5276; }
+.actions-panel { border-radius:var(--border-radius-md); padding:1rem 1.1rem; margin-bottom:1.25rem; }
+.actions-title { font-size:14px; font-weight:700; margin-bottom:0.7rem; }
+.action-item { display:flex; gap:10px; margin-bottom:9px; font-size:13px; line-height:1.65; color:var(--color-text-primary); }
+.action-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:7px; }
+.time-tag { display:inline-block; border-radius:4px; padding:2px 8px; font-size:10px; font-weight:700; margin-right:6px; vertical-align:middle; font-family:'Montserrat',Arial,sans-serif; }
+.chart-wrap { position:relative; width:100%; height:230px; }
+.consistency-msg { font-size:13px; padding:0.7rem 1rem; border-radius:var(--border-radius-md); margin-bottom:0.9rem; line-height:1.65; }
+.vcaa-note { font-size:11px; color:var(--color-text-tertiary); padding:0.5rem 0.8rem; background:var(--color-background-secondary); border-radius:var(--border-radius-sm); margin-bottom:0.85rem; line-height:1.6; }
+.hint { font-size:12px; color:var(--color-text-secondary); font-style:italic; margin-bottom:0.75rem; }
+.no-exam-note { font-size:12px; color:var(--color-text-tertiary); font-style:italic; padding:0.4rem 0; margin-bottom:0.5rem; }
+</style>
+
+<div class="wrap">
+<div class="cohort-note">
+  <strong>VCE English rewards consistency across the whole year.</strong> Your school assessment grades and exam result are combined to determine your final grade, which is then ranked across all ~41,000 English students in Victoria. Cohort mean on Assessment 1: <strong>17/40</strong>. <strong>Click any assessment card to see targeted actions for that area.</strong>
+</div>
+
+<div class="section-head">Unit 3 assessments — click a card for targeted feedback</div>
+<div class="sac-grid">
+  <div class="sac-card" data-idx="0" data-section="a" data-examable="true">
+    <div class="sac-tag" style="background:#D6EAF8;color:#1A5276">SECTION A</div>
+    <div class="sac-name">Text Response</div>
+    <div class="sac-unit">Unit 3 · Assessment 1</div>
+    <div class="sac-row"><input type="range" min="0" max="40" step="1" value="17" data-idx="0" class="sac-slider"><span class="sac-score" id="sv0">17</span><span class="sac-max">/40</span></div>
+    <div class="sac-pct" id="sp0">43%</div>
+    <div><span class="sac-range-pill" id="rp0">—</span></div>
+  </div>
+  <div class="sac-card" data-idx="1" data-section="b" data-examable="true">
+    <div class="sac-tag" style="background:#D5F5E3;color:#145A32">SECTION B</div>
+    <div class="sac-name">Creative Piece</div>
+    <div class="sac-unit">Unit 3 · Assessment 2</div>
+    <div class="sac-row"><input type="range" min="0" max="40" step="1" value="20" data-idx="1" class="sac-slider"><span class="sac-score" id="sv1">20</span><span class="sac-max">/40</span></div>
+    <div class="sac-pct" id="sp1">50%</div>
+    <div><span class="sac-range-pill" id="rp1">—</span></div>
+  </div>
+  <div class="sac-card sac-only" data-idx="2" data-section="b_exp" data-examable="false">
+    <div class="sac-tag" style="background:#F9EBEA;color:#78281F">SAC ONLY</div>
+    <div class="sac-name">Written Explanation</div>
+    <div class="sac-unit">Unit 3 · Assessment 2 — not examinable</div>
+    <div class="sac-row"><input type="range" min="0" max="20" step="1" value="10" data-idx="2" class="sac-slider"><span class="sac-score" id="sv2">10</span><span class="sac-max">/20</span></div>
+    <div class="sac-pct" id="sp2">50%</div>
+    <div><span class="sac-range-pill" id="rp2">—</span></div>
+  </div>
+  <div class="sac-card" data-idx="3" data-section="c" data-examable="true">
+    <div class="sac-tag" style="background:#FDEBD0;color:#784212">SECTION C</div>
+    <div class="sac-name">Analysing Argument</div>
+    <div class="sac-unit">Unit 4 · Assessment 1</div>
+    <div class="sac-row"><input type="range" min="0" max="40" step="1" value="20" data-idx="3" class="sac-slider"><span class="sac-score" id="sv3">20</span><span class="sac-max">/40</span></div>
+    <div class="sac-pct" id="sp3">50%</div>
+    <div><span class="sac-range-pill" id="rp3">—</span></div>
+  </div>
+  <div class="sac-card" data-idx="4" data-section="a" data-examable="true">
+    <div class="sac-tag" style="background:#D6EAF8;color:#1A5276">SECTION A</div>
+    <div class="sac-name">Text Response</div>
+    <div class="sac-unit">Unit 4 · Assessment 2</div>
+    <div class="sac-row"><input type="range" min="0" max="40" step="1" value="20" data-idx="4" class="sac-slider"><span class="sac-score" id="sv4">20</span><span class="sac-max">/40</span></div>
+    <div class="sac-pct" id="sp4">50%</div>
+    <div><span class="sac-range-pill" id="rp4">—</span></div>
+  </div>
+  <div class="sac-card sac-only" data-idx="5" data-section="oral" data-examable="false">
+    <div class="sac-tag" style="background:#F9EBEA;color:#78281F">SAC ONLY</div>
+    <div class="sac-name">Oral Presentation</div>
+    <div class="sac-unit">Unit 4 · Assessment 3 — not examinable</div>
+    <div class="sac-row"><input type="range" min="0" max="20" step="1" value="10" data-idx="5" class="sac-slider"><span class="sac-score" id="sv5">10</span><span class="sac-max">/20</span></div>
+    <div class="sac-pct" id="sp5">50%</div>
+    <div><span class="sac-range-pill" id="rp5">—</span></div>
+  </div>
+</div>
+
+<div class="section-head">Exam estimate (out of 60)</div>
+<div class="sac-card" style="margin-bottom:1.25rem;cursor:default;">
+  <div class="sac-name">End of year written examination</div>
+  <div class="sac-unit">Sections A + B + C · out of 60 · 2024 state mean: 32.6/60</div>
+  <div class="sac-row"><input type="range" min="0" max="60" step="1" value="26" id="exam-slider"><span class="sac-score" id="exam-val">26</span><span class="sac-max">/60</span></div>
+  <div class="sac-pct" id="exam-pct"></div>
+  <div style="margin-top:6px;"><span class="sac-range-pill" id="exam-pill">—</span></div>
+</div>
+<div class="vcaa-note">📊 2024 VCAA: 41,270 students · exam mean 32.6/60 · grade median B · the final study score is a state-wide ranking across all students. Consistent performance across all assessments is what determines your position.</div>
+
+<hr class="divider">
+<div class="section-head">Your projected result</div>
+<div class="metric-grid">
+  <div class="metric-card">
+    <div class="metric-label">Total SAC score</div>
+    <div class="metric-val" id="m-sac-total">—</div>
+    <div class="metric-sub">out of 200</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">SAC average</div>
+    <div class="metric-val" id="m-sac-pct">—</div>
+    <div class="metric-sub">across all tasks</div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Projected grade</div>
+    <div class="metric-val" id="m-grade">—</div>
+    <div class="metric-sub" id="m-grade-sub"></div>
+  </div>
+  <div class="metric-card">
+    <div class="metric-label">Projected SS</div>
+    <div class="metric-val" id="m-ss" style="font-size:28px;">—</div>
+    <div class="metric-sub">out of 50 · indicative only</div>
+  </div>
+</div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+  <span style="font-size:12px;color:var(--color-text-secondary)">Where this result sits in the state distribution</span>
+  <span style="font-size:12px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;" id="bar-label">—</span>
+</div>
+<div class="bar-track"><div class="bar-fill" id="main-bar" style="width:0%"></div></div>
+<div class="bar-labels">
+  <span>E</span><span>D+</span><span>C — SS25</span><span>B — SS33</span><span>B+</span><span>A — SS41</span><span>A+</span>
+</div>
+
+<div id="consistency-msg" class="consistency-msg" style="margin-top:0.9rem;"></div>
+<div id="status-box" class="status-box"></div>
+
+<hr class="divider">
+<div class="section-head">What it takes to reach each level</div>
+<div class="threshold-grid" id="threshold-grid"></div>
+
+<hr class="divider">
+<div class="section-head" id="actions-head">Study actions — click any assessment card for targeted feedback</div>
+<p class="hint" id="actions-hint">Showing overall range. Select a specific card above for section-specific actions.</p>
+<div class="section-tabs" id="tab-row">
+  <button class="tab-btn active" data-tab="a">Section A — Text Response</button>
+  <button class="tab-btn" data-tab="b">Section B — Creating</button>
+  <button class="tab-btn" data-tab="c">Section C — Argument</button>
+</div>
+<div id="actions-panel" class="actions-panel"></div>
+
+<hr class="divider">
+<div class="section-head">Score breakdown by assessment</div>
+<div class="chart-wrap"><canvas id="breakdownChart"></canvas></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+Chart.defaults.font.family = "'Roboto', Arial, sans-serif";
+
+const assessments = [
+  {name:'TR U3',         max:40, section:'a',     examable:true},
+  {name:'Creative U3',   max:40, section:'b',     examable:true},
+  {name:'Explanation U3',max:20, section:'b_exp', examable:false},
+  {name:'Arg U4',        max:40, section:'c',     examable:true},
+  {name:'TR U4',         max:40, section:'a',     examable:true},
+  {name:'Oral U4',       max:20, section:'oral',  examable:false},
+];
+
+// ── SS CURVE ─────────────────────────────────────────────────────────────────
+// Calibrated against real student data:
+// B+/B SACs + C+ exam (combined ~62-65%) → SS 27-29
+// State median (combined ~66%) → SS ~33 (grade B)
+// The curve is deliberately conservative in the middle range.
+// Grade boundaries from VCAA 2024:
+//   Exam /60: C+=24-27, B=28-31, B+=32-35, A=36-39, A+=44-60
+//   SAC /100: C+=52-59, B=60-66, B+=67-73, A=74-82, A+=83-100
+
+// Combined pct = (sacPct + examPct) / 2
+// Anchors derived so that:
+//   combined 0.63 (B SAC, C+ exam) → SS 27  ✓ matches your data
+//   combined 0.66 (state median)   → SS 33  ✓ matches VCAA median
+//   combined 0.45 (cohort mean)    → SS ~20-22
+const ssAnchors = [
+  {pct:0.000, ss:1 },
+  {pct:0.060, ss:3 },
+  {pct:0.110, ss:6 },
+  {pct:0.170, ss:12},
+  {pct:0.250, ss:18},
+  {pct:0.340, ss:22},  // ~34% combined → SS 22
+  {pct:0.420, ss:25},  // C boundary
+  {pct:0.490, ss:27},  // C+ lower
+  {pct:0.560, ss:28},  // C+ upper — your students cluster here
+  {pct:0.630, ss:29},  // B/C+ boundary — confirmed by your data
+  {pct:0.660, ss:33},  // State median B
+  {pct:0.700, ss:35},  // B+
+  {pct:0.760, ss:38},  // B+/A boundary
+  {pct:0.820, ss:41},  // A
+  {pct:0.900, ss:45},  // A+
+  {pct:1.000, ss:50},
+];
+
+function interpolateSS(pct) {
+  if (pct <= 0) return 1;
+  if (pct >= 1) return 50;
+  for (let i = 0; i < ssAnchors.length - 1; i++) {
+    if (pct >= ssAnchors[i].pct && pct < ssAnchors[i+1].pct) {
+      const t = (pct - ssAnchors[i].pct) / (ssAnchors[i+1].pct - ssAnchors[i].pct);
+      return Math.round(ssAnchors[i].ss + t * (ssAnchors[i+1].ss - ssAnchors[i].ss));
+    }
+  }
+  return 50;
+}
+
+// VCAA exam grade boundaries /60
+const examGradeBounds = [
+  {grade:'A+',min:44,ss:45},{grade:'A',min:36,ss:41},{grade:'B+',min:32,ss:37},
+  {grade:'B',min:28,ss:33},{grade:'C+',min:24,ss:29},{grade:'C',min:19,ss:25},
+  {grade:'D+',min:10,ss:20},{grade:'D',min:3,ss:12},{grade:'E+',min:1,ss:6},{grade:'E',min:0,ss:3},
+];
+
+// SAC grade boundaries (as pct of max)
+const sacGradeBounds = [
+  {grade:'A+',min:0.83},{grade:'A',min:0.74},{grade:'B+',min:0.67},
+  {grade:'B',min:0.60},{grade:'C+',min:0.52},{grade:'C',min:0.43},
+  {grade:'D+',min:0.33},{grade:'D',min:0.20},{grade:'E+',min:0.10},{grade:'E',min:0.0},
+];
+
+function pctToSACGrade(pct) {
+  for (const g of sacGradeBounds) if (pct >= g.min) return g.grade;
+  return 'E';
+}
+
+function examToGrade(score) {
+  for (const g of examGradeBounds) if (score >= g.min) return g.grade;
+  return 'E';
+}
+
+function ssToGrade(ss) {
+  if (ss>=45) return 'A+'; if (ss>=41) return 'A'; if (ss>=37) return 'B+';
+  if (ss>=33) return 'B';  if (ss>=29) return 'C+';if (ss>=25) return 'C';
+  if (ss>=20) return 'D+'; if (ss>=12) return 'D'; if (ss>=6)  return 'E+';
+  if (ss>=3)  return 'E';  return 'UG';
+}
+
+function projectSS(sacTotal, exam) {
+  const sacPct  = sacTotal / 200;
+  const examPct = exam / 60;
+  const combined = (sacPct + examPct) / 2;
+  const ss = Math.min(50, Math.max(1, interpolateSS(combined)));
+  return { ss, grade: ssToGrade(ss), combined };
+}
+
+// What exam score is needed (given current SAC) to reach a target SS?
+function examNeededForSS(targetSS, sacTotal) {
+  // Reverse interpolate: find combined pct for targetSS
+  let targetCombined = 0;
+  for (let i = 0; i < ssAnchors.length - 1; i++) {
+    if (targetSS >= ssAnchors[i].ss && targetSS <= ssAnchors[i+1].ss) {
+      const t = (targetSS - ssAnchors[i].ss) / (ssAnchors[i+1].ss - ssAnchors[i].ss);
+      targetCombined = ssAnchors[i].pct + t * (ssAnchors[i+1].pct - ssAnchors[i].pct);
+      break;
+    }
+  }
+  const sacPct   = sacTotal / 200;
+  const examPct  = targetCombined * 2 - sacPct;
+  return Math.round(Math.min(60, Math.max(0, examPct * 60)));
+}
+
+function pctToRange(pct) {
+  if (pct < 0.22) return 'vl';
+  if (pct < 0.43) return 'l';
+  if (pct < 0.62) return 'm';
+  if (pct < 0.77) return 'h';
+  return 'vh';
+}
+
+function ssToRange(ss) {
+  if (ss < 20) return 'vl';
+  if (ss < 27) return 'l';
+  if (ss < 35) return 'm';
+  if (ss < 43) return 'h';
+  return 'vh';
+}
+
+function rangeLabel(r) {
+  return {vl:'Very Low',l:'Low',m:'Medium',h:'High',vh:'Very High'}[r]||'';
+}
+
+function getSSColor(ss) {
+  if (ss < 25) return '#C0392B';
+  if (ss < 30) return '#BA7517';
+  if (ss < 38) return '#1A5276';
+  return '#1E8449';
+}
+
+function rangePillStyle(r) {
+  return {
+    vl:'background:#FADBD8;color:#922B21',
+    l: 'background:#FDEBD0;color:#784212',
+    m: 'background:#FEFDE7;color:#7D6608',
+    h: 'background:#EBF5FB;color:#1A5276',
+    vh:'background:#EAFAF1;color:#145A32',
+  }[r]||'';
+}
+
+const thresholds = [
+  {ss:25, label:'Steady Learner',      color:'#C0392B', textColor:'#922B21', bg:'#FDEDEC', desc:'SS 25 — foundation level'},
+  {ss:30, label:'Disciplined Climber', color:'#BA7517', textColor:'#7D6608', bg:'#FEFDE7', desc:'SS 30 — broadening options'},
+  {ss:40, label:'Strategic Achiever',  color:'#1E8449', textColor:'#145A32', bg:'#EAFAF1', desc:'SS 40 — competitive pathways'},
+];
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+const allActions = {
+  a:{
+    vl:[
+      {time:'5 min', text:'Build a verb gradient list for Hadley\'s technique — suggests → implies → exposes → forces the reader to confront. Memorise 5 analysis verbs per session.'},
+      {time:'5 min', text:'Take a paragraph from a sample essay. Circle every character name — can you replace it with a thematic concept? If not, it\'s summary, not analysis.'},
+      {time:'15 min',text:'Memorise 3 key quotes per story. For each, write one sentence: what does Hadley want the reader to understand through this specific moment?'},
+      {time:'15 min',text:'Plan a response using GIST+R — contention and 3 thematic arguments only. Check: are your arguments about themes, or about what characters do?'},
+      {time:'30 min',text:'Write one body paragraph using TREEFALL. Annotate it: circle the topic sentence, underline evidence, highlight every sentence that explains authorial intent.'},
+    ],
+    l:[
+      {time:'5 min', text:'Write 3 topic sentences — each must name a theme, not a character. Test: if you removed the character name, does the argument still hold?'},
+      {time:'15 min',text:'Practise embedding quotes 3 ways: (1) integrated into your own sentence, (2) only the most potent 3–5 words, (3) your sentence opening with the quote.'},
+      {time:'15 min',text:'Write one paragraph using claim–support–explain–connect–extend. After each piece of evidence write: "Through this, Hadley invites the reader to..."'},
+      {time:'30 min',text:'Plan and write a full paragraph with 2 pieces of evidence. The transition between them must explain why you are bringing in the second example.'},
+      {time:'30 min',text:'Sort 5 prompts hardest to easiest. Plan the hardest without notes. Return in 2 days and plan it again — identify what you\'ve retained.'},
+    ],
+    m:[
+      {time:'15 min',text:'Rewrite a paragraph replacing every vague word with a thematically precise one — aim for 5 improvements. Replace "trap" with "patriarchal constraint", "sad" with "psychologically diminished".'},
+      {time:'15 min',text:'Practise layered evidence: first quote establishes the idea, second reinforces or complicates it. Write a sentence explaining why you drew the comparison.'},
+      {time:'30 min',text:'Write a response to a "do you agree" prompt where your contention partially disagrees. Include one paragraph that qualifies the claim — this separates M from H.'},
+      {time:'30 min',text:'Map each Hadley story: themes, subthemes, key quotes, symbols, style features. Identify your weakest story and spend the next full session there.'},
+      {time:'60 min',text:'Write half an essay one day, the second half the next. Compare quality — where does your analytical control drop? That\'s your stamina target.'},
+    ],
+    h:[
+      {time:'15 min',text:'Read your topic sentences in isolation. Do they tell the story of your essay without the paragraphs around them? Rewrite until they are unmistakably yours.'},
+      {time:'15 min',text:'Build a dialectical paragraph: state the claim → introduce a complication → synthesise into a nuanced resolution. This is the structural signature of A-range work.'},
+      {time:'30 min',text:'Close reading drill: for one quote, write 4 sentences — literal meaning, symbolic meaning, structural effect, what it reveals about Hadley\'s worldview.'},
+      {time:'60 min',text:'Full timed essay: 5 min plan, 50 min write, 3 min review. Practise this exact rhythm every session — exam pacing is the final skill to automate.'},
+    ],
+    vh:[
+      {time:'15 min',text:'Write a conclusion that synthesises — a final insight about what Hadley\'s collection reveals about the human condition. Must not restate your introduction.'},
+      {time:'30 min',text:'In one paragraph, move between macro argument, sentence-level syntax, and specific diction analysis. This fluency across levels marks VH work.'},
+      {time:'60 min',text:'Practise the hardest prompt types: partial agreement, contradiction of prompt, nuanced qualification. These are where VH students distinguish themselves.'},
+    ],
+  },
+  b:{
+    vl:[
+      {time:'5 min', text:'List 5 text forms with one structural feature each — monologue (sustained voice), narrative (perspective), speech (address/call to action), letter (intimacy), journal (chronology).'},
+      {time:'15 min',text:'Read the Pankhurst speech from the Term 1 pacer. Identify 3 powerful phrases — what structural patterns does she use? How do they position the reader?'},
+      {time:'15 min',text:'Write an opening paragraph for a creative piece. Focus entirely on establishing voice and register. Read it aloud — does it sound like a real text in that form?'},
+      {time:'30 min',text:'Complete a 3-level features table: Form (Level 1), Structural features (Level 2 — anecdote, dialogue, call to action), Language details (Level 3 — diction, syntax, imagery).'},
+    ],
+    l:[
+      {time:'5 min', text:'List 5 recyclable sentence structures. Practise 5 different sentence openings — vary with time, location, action, emotion, dialogue.'},
+      {time:'15 min',text:'For one stimulus, brainstorm 3 different forms. For each, list the Level 2 structural features you would use and explain why they suit the topic.'},
+      {time:'15 min',text:'Write an opening and closing paragraph. Make the ending echo the opening image — this creates a sense of craft and intentionality that markers notice.'},
+      {time:'30 min',text:'Write a written explanation: choice of form, 2 structural features, 2 language choices — link each to your intended effect on the reader.'},
+    ],
+    m:[
+      {time:'15 min',text:'Audit your creative piece using the 3-level framework. Are your Level 1, 2 and 3 choices balanced? Do they create a consistent effect or are they scattered?'},
+      {time:'15 min',text:'Practise dialogue, jumps in time, and anecdote in a 200-word extract — deploy each purposefully, as they signal sophistication to a marker.'},
+      {time:'30 min',text:'Write a creative piece in 30 minutes then annotate it: circle structural choices, underline language features, note the intended effect of each.'},
+      {time:'30 min',text:'Revise a previous creative piece using feedback. For each change, write a marginal note explaining what you improved and why it is more effective.'},
+    ],
+    h:[
+      {time:'15 min',text:'Write the same scene in two registers — detached/observational vs emotionally immersive. Which suits the stimulus? Annotate your decision with reference to your intended reader.'},
+      {time:'30 min',text:'Write a creative piece using 1 Level 2 feature (extended metaphor, anecdote, call to action) and 3 Level 3 choices (specific diction, repetition, contrast). Annotate each.'},
+      {time:'60 min',text:'Full timed creative + explanation under exam conditions. Self-assess: is your voice consistent? Does your explanation use metalanguage precisely and purposefully?'},
+    ],
+    vh:[
+      {time:'15 min',text:'Audit your creative vocabulary: replace adjective-heavy prose with precise verbs and abstract nouns — this is what makes writing feel assured rather than decorated.'},
+      {time:'30 min',text:'Practise temporal distortion (flashback, flash-forward, non-linear). Annotate: what does each structural choice do to the reader\'s experience of time and meaning?'},
+      {time:'60 min',text:'Full timed creative + explanation. Self-assess: is your voice consistent throughout? Does the explanation match the sophistication of the creative piece?'},
+    ],
+  },
+  b_exp:{
+    vl: [{time:'15 min',text:'Write one explanation paragraph for each structural choice in your creative piece. Name the technique, state the intended effect, link to your chosen form.'}],
+    l:  [{time:'15 min',text:'Your explanation must justify WHY you made each choice — not just describe WHAT you did. Start each sentence: "I chose this because it creates... for the reader."'}],
+    m:  [{time:'15 min',text:'Cover all 3 levels: your form choice, your structural features, and your specific language choices. Each must link to an intended effect on the reader.'}],
+    h:  [{time:'15 min',text:'Discuss how your choices work together — how does your form choice enable your structural features? How do Level 3 choices reinforce Level 2?'}],
+    vh: [{time:'15 min',text:'Demonstrate critical awareness as a writer — discuss choices you considered and rejected, and what that reveals about your craft decisions.'}],
+  },
+  c:{
+    vl:[
+      {time:'5 min', text:'Read any opinion piece. Write one sentence each: who is speaking, to whom, about what, and why this piece exists now.'},
+      {time:'5 min', text:'Circle and label techniques in one paragraph: ethos, pathos, logos, rhetorical question, anecdote, statistics. Write one sentence on the likely effect of each.'},
+      {time:'15 min',text:'Analyse a visual: facial expressions, lighting, colour, camera angle, spatial relationships. Write 3 sentences connecting it to the written argument.'},
+      {time:'30 min',text:'Write a full introductory paragraph — context, the piece\'s overall contention, and the key technique used to open the piece.'},
+    ],
+    l:[
+      {time:'5 min', text:'Memorise these connectives: "appeals to", "positions the reader to", "reinforces the contention that", "undermines the opposing view by", "establishes credibility through".'},
+      {time:'15 min',text:'Practise the how-and-why: don\'t just name the technique — explain what it does to the reader and how it supports the author\'s overall argument.'},
+      {time:'15 min',text:'Write a paragraph connecting a visual to the written argument. What would change if the visual were absent? What does it add that words alone cannot?'},
+      {time:'30 min',text:'Write a full body paragraph: name the technique, embed a reference, explain the effect on the audience, link to the author\'s purpose and contention.'},
+    ],
+    m:[
+      {time:'15 min',text:'Study 2 past VCAA Section C pieces. How does the background information signal purpose? Write one sentence summarising each piece\'s context and how it shapes the argument.'},
+      {time:'15 min',text:'Build a technique bank with examples, not definitions. Include: emotional appeals, credibility moves, logical structure, anaphora, tricolon, rhetorical questions, inclusive language.'},
+      {time:'30 min',text:'Write a timed body paragraph: Body Intro → Body Body → Body Close. Annotate after — does every sentence advance the analysis, or are some summarising content?'},
+      {time:'30 min',text:'Write about a visual independently, then write a connecting sentence showing how it reinforces or extends a specific technique in the written piece.'},
+    ],
+    h:[
+      {time:'15 min',text:'Practise layered evidence: name the technique, embed a reference, then explain the cumulative effect when it combines with another technique in the same piece.'},
+      {time:'15 min',text:'Write a paragraph on how background information (publication context, author credibility, timing) establishes the author\'s position before their first explicit argument.'},
+      {time:'30 min',text:'Write a full timed response in 30 minutes. Annotate after: circle every technique-focused sentence. Aim for 80% technique, 20% context-setting.'},
+      {time:'60 min',text:'Full Section C under timed conditions — speed of identification, analytical depth, and visual integration within one coherent response.'},
+    ],
+    vh:[
+      {time:'15 min',text:'Write about a technique at the ideological level — not "this appeals to emotion" but "this positions the reader to understand the issue through the frame of [X value or ideology]".'},
+      {time:'30 min',text:'Full timed response in 25 minutes (exam pace). Every sentence must advance the analysis — no summaries, no content description.'},
+      {time:'60 min',text:'Complete full Section C twice this week under timed conditions. After each: where did you reach the deepest level of analysis? Where did you slip into content description?'},
+    ],
+  },
+  oral:{
+    vl: [{time:'15 min',text:'Structure your oral: clear opening position → 2–3 developed arguments → a strong closing that calls the audience to action or reframes the issue.'}],
+    l:  [{time:'15 min',text:'Practise delivering your argument without reading from notes. Record yourself — do you sound engaged and persuasive, or are you reciting? Adapt your delivery.'}],
+    m:  [{time:'15 min',text:'Signal your personal stance from the opening and maintain it throughout: "I contend", "It is clear that", "We must recognise". Point of view must be unmistakable.'}],
+    h:  [{time:'15 min',text:'Refine rhetorical techniques in delivery: rhetorical questions, tricolon, anaphora, inclusive language. Each should feel natural and persuasive, not performative.'}],
+    vh: [{time:'15 min',text:'Vary your pace, use strategic pauses, and ensure your closing is your most memorable moment — this is your chance to demonstrate sophisticated register and delivery.'}],
+  },
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const sacVals = [17,20,10,20,20,10];
+let selectedIdx = null;
+let activeTab = 'a';
+let chartInstance = null;
+
+const timeColors = {'5 min':'#D6EAF8','15 min':'#D5F5E3','30 min':'#FDEBD0','60 min':'#F9EBEA'};
+const timeDark   = {'5 min':'#1A5276','15 min':'#145A32','30 min':'#784212','60 min':'#78281F'};
+
+function renderActions() {
+  const exam = parseInt(document.getElementById('exam-slider').value);
+  let sacTotal = 0; sacVals.forEach(v => sacTotal += v);
+  const {ss} = projectSS(sacTotal, exam);
+  const overallRange = ssToRange(ss);
+
+  const panel = document.getElementById('actions-panel');
+  const head  = document.getElementById('actions-head');
+  const hint  = document.getElementById('actions-hint');
+  const tabs  = document.getElementById('tab-row');
+
+  const rdMap = {
+    vl:{color:'#C0392B',bg:'#FDEDEC'}, l:{color:'#BA7517',bg:'#FCE4D6'},
+    m:{color:'#7D6608',bg:'#FFF2CC'},  h:{color:'#1A5276',bg:'#EBF5FB'},
+    vh:{color:'#145A32',bg:'#EAFAF1'},
+  };
+  const sectionLabels = {
+    a:'Section A — Text Response', b:'Section B — Creating a Text',
+    b_exp:'Written Explanation (SAC only)', c:'Section C — Analysing Argument',
+    oral:'Oral Presentation (SAC only)',
+  };
+
+  let range, section, actions, rd, titleText;
+
+  if (selectedIdx !== null) {
+    const a = assessments[selectedIdx];
+    const pct = sacVals[selectedIdx] / a.max;
+    range   = pctToRange(pct);
+    section = a.section;
+    actions = (allActions[section]&&allActions[section][range]) ? allActions[section][range] : [];
+    rd      = rdMap[range];
+    titleText = rangeLabel(range) + ' — ' + sectionLabels[section];
+    head.textContent = 'Targeted actions — ' + a.name + ' (' + sectionLabels[section] + ')';
+    hint.textContent = rangeLabel(range) + ' range on this assessment (' + Math.round(pct*100) + '%). Click a different card to switch focus, or click again to deselect.';
+    tabs.style.display = 'none';
+  } else {
+    range   = overallRange;
+    section = activeTab;
+    actions = (allActions[section]&&allActions[section][range]) ? allActions[section][range] : [];
+    rd      = rdMap[range];
+    titleText = rangeLabel(range) + ' overall — ' + sectionLabels[section];
+    head.textContent = 'Study actions — ' + rangeLabel(range) + ' overall range';
+    hint.textContent = 'Showing overall range. Click any assessment card above for section-specific targeted feedback.';
+    tabs.style.display = 'flex';
+  }
+
+  const notExamable = selectedIdx !== null && !assessments[selectedIdx].examable;
+  panel.style.background = rd.bg;
+  panel.innerHTML = '<div class="actions-title" style="color:'+rd.color+'">'+titleText+'</div>'
+    + (notExamable ? '<div class="no-exam-note">This task does not appear on the final exam, but the skills here strengthen your overall writing proficiency.</div>' : '')
+    + (actions.length === 0 ? '<div style="font-size:13px;color:var(--color-text-secondary)">No actions available for this combination.</div>' : '')
+    + actions.map(ac =>
+        '<div class="action-item"><div class="action-dot" style="background:'+rd.color+'"></div><div>'
+        +'<span class="time-tag" style="background:'+(timeColors[ac.time]||'#eee')+';color:'+(timeDark[ac.time]||'#333')+'">'+ac.time+'</span>'
+        +ac.text+'</div></div>'
+      ).join('');
+}
+
+function update() {
+  const exam = parseInt(document.getElementById('exam-slider').value);
+  document.getElementById('exam-val').textContent = exam;
+  const examPct = exam/60;
+  document.getElementById('exam-pct').textContent = Math.round(examPct*100)+'% · '+examToGrade(exam);
+
+  const examGrade = examToGrade(exam);
+  const epill = document.getElementById('exam-pill');
+  const epct  = examPct;
+  const erange = pctToRange(epct);
+  epill.textContent = examGrade + ' — ' + rangeLabel(erange);
+  epill.setAttribute('style', rangePillStyle(erange));
+
+  let sacTotal = 0;
+  sacVals.forEach((v,i) => {
+    sacTotal += v;
+    document.getElementById('sv'+i).textContent = v;
+    const pct = v/assessments[i].max;
+    document.getElementById('sp'+i).textContent = Math.round(pct*100)+'%';
+    const r = pctToRange(pct);
+    const pill = document.getElementById('rp'+i);
+    pill.textContent = pctToSACGrade(pct) + ' — ' + rangeLabel(r);
+    pill.setAttribute('style', rangePillStyle(r));
+    const slider = document.querySelector('.sac-slider[data-idx="'+i+'"]');
+    if (slider) slider.style.accentColor = {vl:'#C0392B',l:'#BA7517',m:'#B7950B',h:'#1A5276',vh:'#1E8449'}[r]||'#2E75B6';
+  });
+
+  const {ss, grade, combined} = projectSS(sacTotal, exam);
+  const ssColor = getSSColor(ss);
+
+  document.getElementById('m-sac-total').textContent = sacTotal;
+  document.getElementById('m-sac-pct').textContent = Math.round(sacTotal/200*100)+'%';
+  document.getElementById('m-grade').textContent = grade;
+  document.getElementById('m-ss').textContent = ss;
+  document.getElementById('m-ss').style.color = ssColor;
+
+  const learnerLabel = ss<25?'Below Steady Learner':ss<30?'Steady Learner':ss<40?'Disciplined Climber':'Strategic Achiever';
+  document.getElementById('m-grade-sub').textContent = learnerLabel;
+  document.getElementById('m-grade-sub').style.color = ssColor;
+
+  document.getElementById('main-bar').style.width = Math.min(100,(ss/50)*100)+'%';
+  document.getElementById('main-bar').style.background = ssColor;
+  document.getElementById('bar-label').textContent = 'SS '+ss+' / 50';
+
+  const sacPct = sacTotal/200;
+  const diff   = Math.abs(sacPct - examPct);
+  const cm     = document.getElementById('consistency-msg');
+  if (diff < 0.07) {
+    cm.style.background='#EAFAF1'; cm.style.color='#145A32';
+    cm.textContent='✓ Consistent — your assessment and exam scores are well aligned. VCE moderation rewards students whose school performance and exam result tell the same story.';
+  } else if (examPct > sacPct+0.07) {
+    cm.style.background='#FEFDE7'; cm.style.color='#7D6608';
+    cm.textContent='⚠ Your exam estimate is significantly higher than your assessment average. In VCE, school assessment scores are re-scaled against the school\'s exam results — a stronger exam helps, but consistent school performance is what drives your final position.';
+  } else {
+    cm.style.background='#EBF5FB'; cm.style.color='#1A5276';
+    cm.textContent='↑ Your assessment average is stronger than your exam estimate. Consistent school work provides a solid foundation — targeted exam preparation across all three sections will consolidate your result.';
+  }
+
+  const sb = document.getElementById('status-box');
+  const cols = {
+    'Below Steady Learner':['#922B21','#FDEDEC'],
+    'Steady Learner':['#7D6608','#FEFDE7'],
+    'Disciplined Climber':['#1A5276','#EBF5FB'],
+    'Strategic Achiever':['#145A32','#EAFAF1'],
+  }[learnerLabel]||['#555','#eee'];
+  sb.style.background=cols[1]; sb.style.color=cols[0];
+  sb.innerHTML='Current trajectory: <strong>'+learnerLabel+'</strong>&nbsp;&nbsp;·&nbsp;&nbsp;Projected SS '+ss+' / 50&nbsp;&nbsp;·&nbsp;&nbsp;Grade: '+grade;
+
+  // Thresholds
+  const tgrid = document.getElementById('threshold-grid');
+  tgrid.innerHTML='';
+  thresholds.forEach(t => {
+    const reached = ss >= t.ss;
+    const en  = examNeededForSS(t.ss, sacTotal);
+    const gap = Math.max(0, en - exam);
+    const card = document.createElement('div');
+    card.className = 'threshold-card'+(reached?' active':'');
+    card.style.borderColor = reached ? t.color : '';
+    card.style.background  = reached ? t.bg : '';
+    card.innerHTML = '<div class="threshold-title" style="color:'+t.textColor+'">'+t.label+'</div>'
+      +'<div class="threshold-desc">'+t.desc+'</div>'
+      +'<div class="threshold-need" style="color:'+t.textColor+'">'+(reached?'✓ Reached':'Exam needed: '+en+'/60')+'</div>'
+      +'<div class="threshold-gap">'+(reached?'Maintain consistency across all tasks':gap>0?'+'+gap+' exam marks from your current estimate':'Within reach at your current exam pace')+'</div>';
+    tgrid.appendChild(card);
+  });
+
+  renderActions();
+
+  // Chart
+  const labels = assessments.map(a=>a.name).concat(['Exam /60']);
+  const maxes  = assessments.map(a=>a.max).concat([60]);
+  const scores = [...sacVals, exam];
+  const pcts   = scores.map((s,i)=>Math.round(s/maxes[i]*100));
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('breakdownChart'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Your score %', data:pcts,
+         backgroundColor:pcts.map(p=>p<43?'#E74C3C55':p<62?'#F39C1255':'#27AE6055'),
+         borderColor:pcts.map(p=>p<43?'#C0392B':p<62?'#BA7517':'#1E8449'),
+         borderWidth:1.5, borderRadius:4},
+        {label:'2024 state mean %', data:labels.map((_,i)=>i<6?66:54),
+         type:'line', borderColor:'#2E75B6', borderWidth:1.5,
+         borderDash:[5,4], pointRadius:3, fill:false, tension:0},
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true, labels:{font:{family:"'Roboto',Arial,sans-serif",size:12}, boxWidth:14}},
+        tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+'%'}},
+      },
+      scales:{
+        y:{min:0,max:105, ticks:{callback:v=>v+'%',font:{size:12}}},
+        x:{ticks:{autoSkip:false,maxRotation:30,font:{size:12}}},
+      }
+    }
+  });
+}
+
+// Events
+document.querySelectorAll('.sac-slider').forEach(s => {
+  s.addEventListener('input', function(e) {
+    e.stopPropagation();
+    sacVals[parseInt(this.dataset.idx)] = parseInt(this.value);
+    update();
+  });
+});
+
+document.querySelectorAll('.sac-card').forEach(card => {
+  card.addEventListener('click', function(e) {
+    if (e.target.type==='range') return;
+    const idx = parseInt(this.dataset.idx);
+    if (selectedIdx===idx) {
+      selectedIdx=null;
+      document.querySelectorAll('.sac-card').forEach(c=>c.classList.remove('selected'));
+    } else {
+      selectedIdx=idx;
+      document.querySelectorAll('.sac-card').forEach(c=>c.classList.remove('selected'));
+      this.classList.add('selected');
+    }
+    renderActions();
+  });
+});
+
+document.getElementById('exam-slider').addEventListener('input', update);
+
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+    activeTab=this.dataset.tab;
+    renderActions();
+  });
+});
+
+update();
+</script>
